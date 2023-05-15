@@ -4,6 +4,25 @@ import Head from "next/head";
 
 import { api } from "~/utils/api";
 
+import { PostView } from "~/components/postView";
+
+const ProfileFeed = (props: { userId: string }) => {
+  const { data, isLoading } = api.posts.getPostsByUserId.useQuery({
+    userId: props.userId,
+  });
+
+  if (isLoading) return <LoadingPage />;
+  if (!data || data.length === 0) return <div>User has not posted</div>;
+
+  return (
+    <div className="flex flex-col">
+      {data.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
+      ))}
+    </div>
+  );
+};
+
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
     username,
@@ -19,7 +38,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
+        <div className="h-full w-full overflow-y-scroll border-x border-slate-400 md:max-w-2xl">
           <div className="relative h-48  bg-slate-600">
             <Image
               src={data.profileImageUrl}
@@ -30,10 +49,12 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
             />
           </div>
           <div className="h-[64px]"></div>
-          <div className="p-4">
+          <div className="border-b border-slate-400 p-4">
             <p className="text-2xl font-bold">{`@${data.username ?? ""}`}</p>
           </div>
-          <div className="w-full border-b border-slate-400"></div>
+          <div className="w-full">
+            <ProfileFeed userId={data.id ?? ""} />
+          </div>
         </div>
       </main>
     </>
@@ -44,6 +65,7 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import superjson from "superjson";
+import { LoadingPage } from "~/components/loading";
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = createServerSideHelpers({

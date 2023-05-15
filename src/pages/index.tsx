@@ -1,16 +1,14 @@
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { PostView } from "~/components/postView";
 import { type NextPage } from "next";
-import Head from "next/head";
 
-import { RouterOutputs, api } from "~/utils/api";
+import { api } from "~/utils/api";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import Image from "next/image";
-import Link from "next/link";
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
@@ -68,36 +66,6 @@ const CreatePostWizard = () => {
   );
 };
 
-type PostWithUser = RouterOutputs["posts"]["getAll"][number];
-
-const PostView = (props: PostWithUser) => {
-  const { post, author } = props;
-
-  return (
-    <div key={post.id} className="flex gap-4 border-b border-slate-400 p-8">
-      <Image
-        src={author.profileImageUrl}
-        alt={`@${author.username} profile`}
-        className="h-10 w-10 rounded-full"
-        width={56}
-        height={56}
-      />
-      <div className="flex flex-col">
-        <div className="flex gap-2 font-light text-slate-300">
-          <Link href={`/@${author.username}`}>
-            <span>{`@${author.username}`}</span>
-          </Link>
-          <span>{`·`}</span>
-          <Link href={`/post/${post.id}`}>
-            <span>{dayjs(post.createdAt).fromNow()}</span>
-          </Link>
-        </div>
-        <span>{post.content}</span>
-      </div>
-    </div>
-  );
-};
-
 const Feed = () => {
   const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
 
@@ -123,7 +91,7 @@ const Home: NextPage = () => {
   return (
     <>
       <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
+        <div className="h-full w-full overflow-y-scroll border-x border-slate-400 md:max-w-2xl">
           <div className="flex border-b border-slate-400 p-4">
             {!isSignedIn && <SignInButton />}
             {!!isSignedIn && <CreatePostWizard />}
