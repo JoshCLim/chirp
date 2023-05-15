@@ -1,6 +1,6 @@
 name: CI
 
-on: [pust, pull_request]
+on: [push, pull_request]
 
 env:
   DATABASE_URL: "https://fake.com"
