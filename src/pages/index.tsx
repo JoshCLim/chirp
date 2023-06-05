@@ -51,6 +51,7 @@ const CreatePostWizard = () => {
         onKeyDown={(e) => {
           if (e.key === "Enter") mutate({ content: input });
         }}
+        value={input}
       />
       {input !== "" && !isPosting && (
         <button onClick={() => mutate({ content: input })} disabled={isPosting}>
